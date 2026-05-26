@@ -1,0 +1,42 @@
+{
+	"name": "n8n-nodes-wizcut",
+	"version": "0.1.0",
+	"description": "n8n community node for WizCut — AI-powered multicam podcast editing API",
+	"keywords": ["n8n-community-node-package", "n8n-nodes", "wizcut", "podcast", "video-editing", "multicam"],
+	"license": "MIT",
+	"author": {
+		"name": "Emil Bruckner",
+		"email": "smart.gate5411@unemail.net"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wizcut-app/n8n-nodes-wizcut.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": ["dist/credentials/WizcutApi.credentials.js"],
+		"nodes": [
+			"dist/nodes/Wizcut/Wizcut.node.js",
+			"dist/nodes/Wizcut/WizcutTrigger.node.js"
+		]
+	},
+	"files": ["dist"],
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"eslint": "^9.0.0",
+		"prettier": "^3.0.0",
+		"typescript": "^5.7.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
