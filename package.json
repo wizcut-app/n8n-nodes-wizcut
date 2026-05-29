@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-wizcut",
+	"name": "@wizcut/n8n-nodes-wizcut",
 	"version": "0.1.0",
 	"description": "n8n community node for WizCut — AI-powered multicam podcast editing API",
 	"keywords": ["n8n-community-node-package", "n8n-nodes", "wizcut", "podcast", "video-editing", "multicam"],
