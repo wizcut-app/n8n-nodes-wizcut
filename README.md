@@ -4,6 +4,8 @@
 
 WizCut automatically syncs, diarizes, and cuts multicam podcast recordings. Upload your camera angles, confirm speaker mapping in the WizCut editor, and get a finished video back.
 
+![WizCut](wizcut-hero.gif)
+
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
 ## Operations
