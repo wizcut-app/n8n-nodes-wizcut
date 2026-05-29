@@ -1,0 +1,135 @@
+{
+  "name": "Automated Podcast Editing Notifications with WizCut",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "any"
+      },
+      "id": "trigger",
+      "name": "WizCut Trigger",
+      "type": "@wizcut/n8n-nodes-wizcut.wizcutTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "wizcut-status"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "outputKey": "mapping",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "mapping",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "ready",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "ready",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "complete",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "complete",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "switch",
+      "name": "Route by Status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#podcast-production",
+        "text": "=🎙️ *Speakers detected for job {{ $json.jobId }}*\n\nWizCut found these speakers: {{ $json.speakers.join(', ') }}\n\n👉 <{{ $json.reviewUrl }}|Map speakers to cameras>\n\nThis takes about 30 seconds — just confirm which camera shows which speaker.",
+        "otherOptions": {}
+      },
+      "id": "slack-mapping",
+      "name": "Slack: Map Speakers",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [720, 140]
+    },
+    {
+      "parameters": {
+        "operation": "startRender",
+        "jobId": "={{ $json.jobId }}"
+      },
+      "id": "render",
+      "name": "WizCut: Start Render",
+      "type": "@wizcut/n8n-nodes-wizcut.wizcut",
+      "typeVersion": 1,
+      "position": [720, 300],
+      "credentials": {
+        "wizcutApi": {
+          "id": "",
+          "name": "WizCut API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "#podcast-production",
+        "text": "=✅ *Episode rendered!*\n\nJob {{ $json.jobId }} is ready for download:\n👉 {{ $json.outputUrl }}\n\nApprove it in WizCut or use the WizCut Approve action to finalize.",
+        "otherOptions": {}
+      },
+      "id": "slack-complete",
+      "name": "Slack: Episode Ready",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [720, 460]
+    }
+  ],
+  "connections": {
+    "WizCut Trigger": {
+      "main": [
+        [{ "node": "Route by Status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Status": {
+      "main": [
+        [{ "node": "Slack: Map Speakers", "type": "main", "index": 0 }],
+        [{ "node": "WizCut: Start Render", "type": "main", "index": 0 }],
+        [{ "node": "Slack: Episode Ready", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "tags": []
+}
