@@ -153,6 +153,9 @@ export class Wizcut implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
+		const credentials = await this.getCredentials('wizcutApi');
+		const baseUrl = ((credentials.baseUrl as string) || 'https://wizcut.com').replace(/\/$/, '');
+
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const operation = this.getNodeParameter('operation', i) as string;
@@ -183,7 +186,7 @@ export class Wizcut implements INodeType {
 						'wizcutApi',
 						{
 							method: 'POST',
-							url: '/api/jobs',
+							url: `${baseUrl}/api/jobs`,
 							body,
 							json: true,
 						},
@@ -198,7 +201,7 @@ export class Wizcut implements INodeType {
 						'wizcutApi',
 						{
 							method: 'GET',
-							url: `/api/jobs/${jobId}`,
+							url: `${baseUrl}/api/jobs/${jobId}`,
 							json: true,
 						},
 					);
@@ -217,7 +220,7 @@ export class Wizcut implements INodeType {
 						'wizcutApi',
 						{
 							method: 'POST',
-							url: `/api/jobs/${jobId}/process`,
+							url: `${baseUrl}/api/jobs/${jobId}/process`,
 							body,
 							json: true,
 						},
@@ -232,7 +235,7 @@ export class Wizcut implements INodeType {
 						'wizcutApi',
 						{
 							method: 'POST',
-							url: `/api/jobs/${jobId}/render`,
+							url: `${baseUrl}/api/jobs/${jobId}/render`,
 							json: true,
 						},
 					);
@@ -246,7 +249,7 @@ export class Wizcut implements INodeType {
 						'wizcutApi',
 						{
 							method: 'POST',
-							url: `/api/jobs/${jobId}/approve`,
+							url: `${baseUrl}/api/jobs/${jobId}/approve`,
 							json: true,
 						},
 					);
