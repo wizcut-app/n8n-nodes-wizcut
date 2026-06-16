@@ -1,6 +1,6 @@
 {
 	"name": "@wizcut/n8n-nodes-wizcut",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"description": "n8n community node for WizCut — AI-powered multicam podcast editing API",
 	"keywords": ["n8n-community-node-package", "n8n-nodes", "wizcut", "podcast", "video-editing", "multicam"],
 	"license": "MIT",
@@ -12,6 +12,7 @@
 		"type": "git",
 		"url": "https://github.com/wizcut-app/n8n-nodes-wizcut.git"
 	},
+	"homepage": "https://github.com/wizcut-app/n8n-nodes-wizcut#readme",
 	"scripts": {
 		"build": "n8n-node build",
 		"dev": "n8n-node dev",

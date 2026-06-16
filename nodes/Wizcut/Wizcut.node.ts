@@ -3,8 +3,9 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes } from 'n8n-workflow';
 
 export class Wizcut implements INodeType {
 	description: INodeTypeDescription = {
@@ -20,13 +21,6 @@ export class Wizcut implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
 		credentials: [{ name: 'wizcutApi', required: true }],
-		requestDefaults: {
-			baseURL: '={{$credentials.baseUrl}}',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-		},
 		properties: [
 			{
 				displayName: 'Operation',
@@ -263,7 +257,7 @@ export class Wizcut implements INodeType {
 						pairedItem: { item: i },
 					});
 				} else {
-					throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
+					throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
 				}
 			}
 		}
