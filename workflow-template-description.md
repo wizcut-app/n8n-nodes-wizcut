@@ -1,22 +1,22 @@
 # Automated Podcast Editing Notifications with WizCut
 
-Automate your multicam podcast post-production with WizCut and Slack. This workflow listens for status updates from WizCut's AI editing pipeline and keeps your team in the loop — no manual checking required.
+Automate your multicam podcast post-production with WizCut and Slack. This workflow listens for status updates from WizCut’s AI editing pipeline and keeps your team in the loop — no manual checking required.
 
 ## What it does
 
 WizCut automatically syncs, detects speakers, and cuts multicam podcast recordings. This workflow handles what happens after you upload your footage:
 
-1. **Speakers detected** → Slack notification with a direct link to confirm speaker-to-camera mapping (takes ~30 seconds in WizCut's editor)
+1. **Speakers detected** → Slack notification with a direct link to confirm speaker-to-camera mapping (takes ~30 seconds in WizCut’s editor)
 2. **Mapping confirmed** → Automatically triggers the final render
 3. **Render complete** → Slack notification with the download link
 
-You upload your source files through [WizCut's web app](https://wizcut.com), and this workflow automates the rest of the pipeline.
+You upload your source files through [WizCut’s web app](https://wizcut.com), and this workflow automates the rest of the pipeline.
 
 ## Who is this for?
 
 - Podcast producers editing multicam recordings
 - Production teams who want Slack notifications instead of checking dashboards
-- Anyone using WizCut's API who wants automated render triggers
+- Anyone using WizCut’s API who wants automated render triggers
 
 ## How to set it up
 
@@ -52,7 +52,7 @@ When creating a job via the WizCut API, include the webhook URL:
 - **Replace Slack with Email/Discord/Teams** — swap the Slack nodes for your preferred notification service
 - **Add YouTube upload** — after render completes, automatically upload the finished video to YouTube
 - **Add transcription** — send the finished video to OpenAI Whisper for show notes and chapters
-- **Skip auto-render** — remove the "Start Render" node if you want to review cuts in WizCut's editor before rendering
+- **Skip auto-render** — remove the “Start Render” node if you want to review cuts in WizCut’s editor before rendering
 
 ## Need something different?
 
