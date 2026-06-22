@@ -3,23 +3,35 @@
   "nodes": [
     {
       "parameters": {
+        "content": "## Automated podcast editing with WizCut\n\nWizCut automatically syncs, detects speakers, and cuts your multicam podcast. This workflow reacts to each status update:\n\n1. **Speakers detected** → Slack ping with a link to map speakers to cameras (~30s in the WizCut editor)\n2. **Cuts ready** → automatically starts the final render\n3. **Render complete** → Slack ping with the download link\n\n**Setup:** add your WizCut + Slack credentials, pick a channel, then paste the WizCut Trigger URL as the `callbackUrl` when you create a job. Get an API key at wizcut.com.",
+        "height": 360,
+        "width": 380,
+        "color": 4
+      },
+      "id": "note-overview",
+      "name": "How this works",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-360, 180]
+    },
+    {
+      "parameters": {
         "event": "any"
       },
       "id": "trigger",
       "name": "WizCut Trigger",
       "type": "@wizcut/n8n-nodes-wizcut.wizcutTrigger",
       "typeVersion": 1,
-      "position": [240, 300],
+      "position": [40, 400],
       "webhookId": "wizcut-status"
     },
     {
       "parameters": {
         "rules": {
-          "rules": [
+          "values": [
             {
-              "outputKey": "mapping",
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2 },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.status }}",
@@ -28,12 +40,13 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "mapping"
             },
             {
-              "outputKey": "ready",
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2 },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.status }}",
@@ -42,12 +55,13 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "ready"
             },
             {
-              "outputKey": "complete",
               "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose", "version": 2 },
                 "conditions": [
                   {
                     "leftValue": "={{ $json.status }}",
@@ -56,23 +70,30 @@
                   }
                 ],
                 "combinator": "and"
-              }
+              },
+              "renameOutput": true,
+              "outputKey": "complete"
             }
           ]
         },
-        "options": {
-          "fallbackOutput": "extra"
-        }
+        "options": {}
       },
       "id": "switch",
       "name": "Route by Status",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
-      "position": [480, 300]
+      "position": [320, 400]
     },
     {
       "parameters": {
-        "channel": "#podcast-production",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#podcast-production"
+        },
         "text": "=🎙️ *Speakers detected for job {{ $json.jobId }}*\n\nWizCut found these speakers: {{ $json.speakers.join(', ') }}\n\n👉 <{{ $json.reviewUrl }}|Map speakers to cameras>\n\nThis takes about 30 seconds — just confirm which camera shows which speaker.",
         "otherOptions": {}
       },
@@ -80,7 +101,7 @@
       "name": "Slack: Map Speakers",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.2,
-      "position": [720, 140]
+      "position": [620, 180]
     },
     {
       "parameters": {
@@ -91,7 +112,7 @@
       "name": "WizCut: Start Render",
       "type": "@wizcut/n8n-nodes-wizcut.wizcut",
       "typeVersion": 1,
-      "position": [720, 300],
+      "position": [620, 400],
       "credentials": {
         "wizcutApi": {
           "id": "",
@@ -101,7 +122,14 @@
     },
     {
       "parameters": {
-        "channel": "#podcast-production",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#podcast-production"
+        },
         "text": "=✅ *Episode rendered!*\n\nJob {{ $json.jobId }} is ready for download:\n👉 {{ $json.outputUrl }}\n\nApprove it in WizCut or use the WizCut Approve action to finalize.",
         "otherOptions": {}
       },
@@ -109,7 +137,7 @@
       "name": "Slack: Episode Ready",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.2,
-      "position": [720, 460]
+      "position": [620, 620]
     }
   ],
   "connections": {

@@ -2,7 +2,7 @@
 
 [n8n](https://n8n.io/) community node for [WizCut](https://wizcut.com) — AI-powered multicam podcast editing.
 
-WizCut automatically syncs, diarizes, and cuts multicam podcast recordings. Upload your camera angles, confirm speaker mapping in the WizCut editor, and get a finished video back.
+WizCut automatically syncs, detects speakers, and cuts multicam podcast recordings. Upload your camera angles, confirm speaker mapping in the WizCut editor, and get a finished video back.
 
 ![WizCut](wizcut-hero.gif)
 
@@ -16,7 +16,7 @@ WizCut automatically syncs, diarizes, and cuts multicam podcast recordings. Uplo
 |---|---|
 | **Create Job** | Create a new editing job with source files. Returns upload URLs. |
 | **Get Job** | Check the current status and details of a job. |
-| **Start Processing** | Kick off audio sync and speaker diarization. |
+| **Start Processing** | Kick off audio sync and speaker detection. |
 | **Start Render** | Render the final video (after speaker mapping is done in WizCut). |
 | **Approve** | Mark a rendered video as approved. |
 
@@ -26,7 +26,7 @@ Webhook-based trigger that starts your workflow when a job changes status:
 
 | Event | When it fires |
 |---|---|
-| **Mapping Ready** | Diarization complete. Speakers detected, waiting for you to confirm mapping in the WizCut editor. |
+| **Mapping Ready** | Speakers detected. Waiting for you to confirm mapping in the WizCut editor. |
 | **Cuts Ready** | Speaker mapping confirmed and cuts generated. Ready for review or render. |
 | **Render Complete** | Video rendering finished. |
 | **Approved** | Rendered video approved for download. |
@@ -36,7 +36,7 @@ Webhook-based trigger that starts your workflow when a job changes status:
 1. Files land in Google Drive / Dropbox / S3
 2. **WizCut: Create Job** — register sources, get presigned upload URLs
 3. **HTTP Request** — upload files to the presigned URLs
-4. **WizCut: Start Processing** — kicks off sync + diarization
+4. **WizCut: Start Processing** — kicks off sync + speaker detection
 5. **WizCut Trigger** receives `mapping` webhook — send a Slack/email with the review link
 6. You confirm speaker mapping in the WizCut editor (takes ~30 seconds)
 7. **WizCut Trigger** receives `ready` webhook — trigger render (or review cuts first)

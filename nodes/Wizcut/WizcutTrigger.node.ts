@@ -56,7 +56,7 @@ export class WizcutTrigger implements INodeType {
 						name: 'Mapping Ready',
 						value: 'mapping',
 						description:
-							'Diarization complete — speakers detected, waiting for mapping in WizCut UI',
+							'Speakers detected — waiting for mapping in WizCut UI',
 					},
 					{
 						name: 'Render Complete',
