@@ -49,7 +49,7 @@ export class Wizcut implements INodeType {
 					{
 						name: 'Start Processing',
 						value: 'startProcessing',
-						description: 'Start audio sync and speaker diarization',
+						description: 'Start audio sync and speaker detection',
 						action: 'Start processing a job',
 					},
 					{
@@ -132,13 +132,13 @@ export class Wizcut implements INodeType {
 
 			// --- Start Processing fields ---
 			{
-				displayName: 'Diarize Source IDs',
+				displayName: 'Speaker Detection Sources',
 				name: 'diarizeSourceIds',
 				type: 'string',
 				default: '',
 				displayOptions: { show: { operation: ['startProcessing'] } },
 				description:
-					'Comma-separated source IDs to use for speaker diarization. Defaults to the first source.',
+					'Comma-separated source IDs to use for speaker detection. Defaults to the first source.',
 			},
 		],
 	};
