@@ -107,6 +107,31 @@ export class Wizcut implements INodeType {
 						description: 'Whether to generate 720p proxy files for faster preview',
 					},
 					{
+						displayName: 'Pause Removal',
+						name: 'pauseRemoval',
+						type: 'options',
+						default: 'off',
+						options: [
+							{
+								name: 'Off',
+								value: 'off',
+								description: 'Keep all pauses as recorded',
+							},
+							{
+								name: 'Tighten',
+								value: 'tighten',
+								description: 'Shorten long pauses to a natural beat (recommended)',
+							},
+							{
+								name: 'Remove',
+								value: 'remove',
+								description: 'Cut long pauses out almost entirely',
+							},
+						],
+						description:
+							'Automatically shorten or remove long pauses before cuts are generated',
+					},
+					{
 						displayName: 'Tracks (JSON)',
 						name: 'tracks',
 						type: 'json',
@@ -163,6 +188,7 @@ export class Wizcut implements INodeType {
 					const additionalFields = this.getNodeParameter('additionalFields', i, {}) as {
 						tracks?: string;
 						generateProxy?: boolean;
+						pauseRemoval?: string;
 					};
 
 					const body: Record<string, unknown> = { sources, review };
@@ -174,6 +200,9 @@ export class Wizcut implements INodeType {
 								: additionalFields.tracks;
 					}
 					if (additionalFields.generateProxy) body.generateProxy = true;
+					if (additionalFields.pauseRemoval && additionalFields.pauseRemoval !== 'off') {
+						body.silence = { mode: additionalFields.pauseRemoval };
+					}
 
 					const response = await this.helpers.httpRequestWithAuthentication.call(
 						this,
