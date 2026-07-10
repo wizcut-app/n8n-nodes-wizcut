@@ -27,9 +27,11 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
-      # OIDC trusted publishing requires npm >= 11.5.1 (Node lts ships npm 10)
+      # OIDC trusted publishing requires npm >= 11.5.1. Pinned to the 11.x
+      # line: installing npm@latest over Node 24's bundled npm removed its
+      # sigstore module and broke `--provenance` (2026-07, publish run #17).
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Install dependencies
         run: npm ci
