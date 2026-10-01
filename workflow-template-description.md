@@ -6,9 +6,11 @@ Automate your multicam podcast post-production with WizCut and Slack. This workf
 
 WizCut automatically syncs, detects speakers, and cuts multicam podcast recordings. This workflow handles what happens after you upload your footage:
 
-1. **Speakers detected** → Slack notification with a direct link to confirm speaker-to-camera mapping (takes ~30 seconds in WizCut’s editor)
-2. **Mapping confirmed** → Automatically triggers the final render
+1. **WizCut isn’t sure who is on which camera** → Slack notification with a direct link to confirm the speaker-to-camera mapping (takes ~30 seconds in WizCut’s editor)
+2. **Cuts ready** → Automatically triggers the final render
 3. **Render complete** → Slack notification with the download link
+
+WizCut assigns speakers to cameras on its own when it’s sure, so the first notification only comes when it needs you.
 
 You upload your source files through [WizCut’s web app](https://wizcut.com), and this workflow automates the rest of the pipeline.
 

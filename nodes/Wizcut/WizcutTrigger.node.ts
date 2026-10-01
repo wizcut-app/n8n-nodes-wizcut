@@ -1,4 +1,5 @@
 import type {
+	IDataObject,
 	IHookFunctions,
 	IWebhookFunctions,
 	INodeType,
@@ -49,14 +50,13 @@ export class WizcutTrigger implements INodeType {
 					{
 						name: 'Cuts Ready',
 						value: 'ready',
-						description:
-							'Speaker mapping confirmed and cuts generated — ready for review or render',
+						description: 'Cuts generated — ready for review or render',
 					},
 					{
 						name: 'Mapping Ready',
 						value: 'mapping',
 						description:
-							'Speakers detected — waiting for mapping in WizCut UI',
+							'WizCut couldn’t tell who is on which camera — confirm it in the editor',
 					},
 					{
 						name: 'Render Complete',
@@ -88,6 +88,7 @@ export class WizcutTrigger implements INodeType {
 			jobId?: string;
 			status?: string;
 			speakers?: string[];
+			cameraMap?: IDataObject;
 			reviewUrl?: string;
 			outputUrl?: string;
 			error?: string;

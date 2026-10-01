@@ -43,8 +43,15 @@ export class Wizcut implements INodeType {
 					{
 						name: 'Get Job',
 						value: 'getJob',
-						description: 'Get the current status and details of a job',
+						description:
+							'Get the current status and details of a job, including WizCut’s proposed speaker mapping (camera_map)',
 						action: 'Get job status',
+					},
+					{
+						name: 'Set Speaker Mapping',
+						value: 'setSpeakerMapping',
+						description: 'Tell WizCut which speakers are on which camera, then generate cuts',
+						action: 'Set the speaker mapping of a job',
 					},
 					{
 						name: 'Start Processing',
@@ -55,7 +62,7 @@ export class Wizcut implements INodeType {
 					{
 						name: 'Start Render',
 						value: 'startRender',
-						description: 'Start rendering the final video after speaker mapping is confirmed',
+						description: 'Start rendering the final video once cuts are ready',
 						action: 'Start rendering a job',
 					},
 				],
@@ -100,11 +107,30 @@ export class Wizcut implements INodeType {
 				displayOptions: { show: { operation: ['createJob'] } },
 				options: [
 					{
-						displayName: 'Generate Proxy',
-						name: 'generateProxy',
-						type: 'boolean',
-						default: false,
-						description: 'Whether to generate 720p proxy files for faster preview',
+						displayName: 'Auto Map',
+						name: 'autoMap',
+						type: 'options',
+						default: 'confident',
+						options: [
+							{
+								name: 'Off',
+								value: 'off',
+								description: 'Always confirm speakers yourself in WizCut',
+							},
+							{
+								name: 'Confident',
+								value: 'confident',
+								description:
+									'Assign speakers automatically when WizCut is sure; otherwise wait for you',
+							},
+							{
+								name: 'Always',
+								value: 'always',
+								description: 'Never wait: use the best guess',
+							},
+						],
+						description:
+							'Whether WizCut assigns speakers to cameras on its own. When it doesn’t, the job waits in "mapping" status for someone to confirm.',
 					},
 					{
 						displayName: 'Pause Removal',
@@ -131,14 +157,6 @@ export class Wizcut implements INodeType {
 						description:
 							'Automatically shorten or remove long pauses before cuts are generated',
 					},
-					{
-						displayName: 'Tracks (JSON)',
-						name: 'tracks',
-						type: 'json',
-						default: '',
-						description:
-							'Pre-assign speakers to sources. Array of {sourceId, speakers: string[]}. Usually set later via the WizCut UI.',
-					},
 				],
 			},
 
@@ -150,7 +168,9 @@ export class Wizcut implements INodeType {
 				default: '',
 				required: true,
 				displayOptions: {
-					show: { operation: ['approve', 'getJob', 'startProcessing', 'startRender'] },
+					show: {
+						operation: ['approve', 'getJob', 'setSpeakerMapping', 'startProcessing', 'startRender'],
+					},
 				},
 				description: 'The job ID returned from Create Job',
 			},
@@ -164,6 +184,18 @@ export class Wizcut implements INodeType {
 				displayOptions: { show: { operation: ['startProcessing'] } },
 				description:
 					'Comma-separated source IDs to use for speaker detection. Defaults to the first source.',
+			},
+
+			// --- Set Speaker Mapping fields ---
+			{
+				displayName: 'Tracks (JSON)',
+				name: 'tracks',
+				type: 'json',
+				default: '[{"sourceId": "", "speakers": ["SPEAKER_00"]}]',
+				required: true,
+				displayOptions: { show: { operation: ['setSpeakerMapping'] } },
+				description:
+					'Array of {sourceId, speakers: string[]}: which speakers each video source shows. A camera can show more than one speaker. Get Job’s camera_map holds WizCut’s proposal. Works while the job is in "mapping" status.',
 			},
 		],
 	};
@@ -186,20 +218,13 @@ export class Wizcut implements INodeType {
 					const callbackUrl = this.getNodeParameter('callbackUrl', i, '') as string;
 					const review = this.getNodeParameter('review', i, true) as boolean;
 					const additionalFields = this.getNodeParameter('additionalFields', i, {}) as {
-						tracks?: string;
-						generateProxy?: boolean;
+						autoMap?: string;
 						pauseRemoval?: string;
 					};
 
 					const body: Record<string, unknown> = { sources, review };
 					if (callbackUrl) body.callbackUrl = callbackUrl;
-					if (additionalFields.tracks) {
-						body.tracks =
-							typeof additionalFields.tracks === 'string'
-								? JSON.parse(additionalFields.tracks)
-								: additionalFields.tracks;
-					}
-					if (additionalFields.generateProxy) body.generateProxy = true;
+					if (additionalFields.autoMap) body.autoMap = additionalFields.autoMap;
 					if (additionalFields.pauseRemoval && additionalFields.pauseRemoval !== 'off') {
 						body.silence = { mode: additionalFields.pauseRemoval };
 					}
@@ -245,6 +270,23 @@ export class Wizcut implements INodeType {
 							method: 'POST',
 							url: `${baseUrl}/api/jobs/${jobId}/process`,
 							body,
+							json: true,
+						},
+					);
+					returnData.push({ json: response as INodeExecutionData['json'], pairedItem: { item: i } });
+				}
+
+				if (operation === 'setSpeakerMapping') {
+					const jobId = this.getNodeParameter('jobId', i) as string;
+					const tracksJson = this.getNodeParameter('tracks', i) as string;
+					const tracks = typeof tracksJson === 'string' ? JSON.parse(tracksJson) : tracksJson;
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'wizcutApi',
+						{
+							method: 'POST',
+							url: `${baseUrl}/api/jobs/${jobId}/tracks`,
+							body: { tracks },
 							json: true,
 						},
 					);
