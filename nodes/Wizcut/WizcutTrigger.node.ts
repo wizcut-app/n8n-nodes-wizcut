@@ -8,11 +8,13 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
 
+// Triggers can't be invoked as AI tools, so no usableAsTool (n8n review requirement).
+// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WizcutTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'WizCut Trigger',
 		name: 'wizcutTrigger',
-		icon: 'file:wizcut.svg',
+		icon: { light: 'file:wizcut-light.svg', dark: 'file:wizcut-dark.svg' },
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["event"]}}',
@@ -20,7 +22,6 @@ export class WizcutTrigger implements INodeType {
 		defaults: { name: 'WizCut Trigger' },
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
-		usableAsTool: true,
 		credentials: [{ name: 'wizcutApi', required: false }],
 		webhooks: [
 			{
