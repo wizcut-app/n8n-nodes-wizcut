@@ -9,7 +9,10 @@ export class WizcutApi implements ICredentialType {
 	name = 'wizcutApi';
 	displayName = 'WizCut API';
 	documentationUrl = 'https://wizcut.com/docs/api';
-	icon = 'file:../nodes/Wizcut/wizcut.svg' as const;
+	icon = {
+		light: 'file:../nodes/Wizcut/wizcut-light.svg',
+		dark: 'file:../nodes/Wizcut/wizcut-dark.svg',
+	} as const;
 
 	properties: INodeProperties[] = [
 		{

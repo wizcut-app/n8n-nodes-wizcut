@@ -11,10 +11,10 @@ export class Wizcut implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'WizCut',
 		name: 'wizcut',
-		icon: 'file:wizcut.svg',
+		icon: { light: 'file:wizcut-light.svg', dark: 'file:wizcut-dark.svg' },
 		group: ['input'],
 		version: 1,
-		subtitle: '={{$parameter["operation"]}}',
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'AI-powered multicam podcast editing',
 		defaults: { name: 'WizCut' },
 		inputs: [NodeConnectionTypes.Main],
@@ -23,10 +23,24 @@ export class Wizcut implements INodeType {
 		credentials: [{ name: 'wizcutApi', required: true }],
 		properties: [
 			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: 'Job',
+						value: 'job',
+					},
+				],
+				default: 'job',
+			},
+			{
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
+				displayOptions: { show: { resource: ['job'] } },
 				options: [
 					{
 						name: 'Approve',
@@ -76,7 +90,7 @@ export class Wizcut implements INodeType {
 				type: 'json',
 				default: '[{"label": "Camera 1"}, {"label": "Camera 2"}]',
 				required: true,
-				displayOptions: { show: { operation: ['createJob'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['createJob'] } },
 				description:
 					'Array of source objects. Each needs a "label". Optional: "kind" (video/audio), "ext" (mp4/mov/wav/...), "fileSize" (bytes, for multipart upload).',
 			},
@@ -85,7 +99,7 @@ export class Wizcut implements INodeType {
 				name: 'callbackUrl',
 				type: 'string',
 				default: '',
-				displayOptions: { show: { operation: ['createJob'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['createJob'] } },
 				description:
 					'Webhook URL to receive status updates (mapping, ready, approved). Use the URL from a WizCut Trigger node.',
 			},
@@ -94,7 +108,7 @@ export class Wizcut implements INodeType {
 				name: 'review',
 				type: 'boolean',
 				default: true,
-				displayOptions: { show: { operation: ['createJob'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['createJob'] } },
 				description:
 					'Whether to pause for human review before rendering. When true, the job pauses at "ready" status so cuts can be reviewed in the WizCut editor.',
 			},
@@ -104,7 +118,7 @@ export class Wizcut implements INodeType {
 				type: 'collection',
 				placeholder: 'Add Field',
 				default: {},
-				displayOptions: { show: { operation: ['createJob'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['createJob'] } },
 				options: [
 					{
 						displayName: 'Auto Map',
@@ -169,6 +183,7 @@ export class Wizcut implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
+						resource: ['job'],
 						operation: ['approve', 'getJob', 'setSpeakerMapping', 'startProcessing', 'startRender'],
 					},
 				},
@@ -181,7 +196,7 @@ export class Wizcut implements INodeType {
 				name: 'diarizeSourceIds',
 				type: 'string',
 				default: '',
-				displayOptions: { show: { operation: ['startProcessing'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['startProcessing'] } },
 				description:
 					'Comma-separated source IDs to use for speaker detection. Defaults to the first source.',
 			},
@@ -193,7 +208,7 @@ export class Wizcut implements INodeType {
 				type: 'json',
 				default: '[{"sourceId": "", "speakers": ["SPEAKER_00"]}]',
 				required: true,
-				displayOptions: { show: { operation: ['setSpeakerMapping'] } },
+				displayOptions: { show: { resource: ['job'], operation: ['setSpeakerMapping'] } },
 				description:
 					'Array of {sourceId, speakers: string[]}: which speakers each video source shows. A camera can show more than one speaker. Get Job’s camera_map holds WizCut’s proposal. Works while the job is in "mapping" status.',
 			},
