@@ -38,6 +38,8 @@ export class WizcutApi implements ICredentialType {
 		properties: {
 			headers: {
 				Authorization: '=Bearer {{$credentials.apiKey}}',
+				// Lets WizCut tell n8n workflows apart from other API clients.
+				'X-WizCut-Client': 'n8n',
 			},
 		},
 	};
