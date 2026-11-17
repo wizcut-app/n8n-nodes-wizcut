@@ -49,6 +49,13 @@ export class Wizcut implements INodeType {
 						action: 'Approve a rendered job',
 					},
 					{
+						name: 'Ask Editor',
+						value: 'askEditor',
+						description:
+							'Ask Tally, WizCut’s AI editing agent, to change the edit in plain language (beta)',
+						action: 'Ask the editing agent to change the edit',
+					},
+					{
 						name: 'Create Job',
 						value: 'createJob',
 						description: 'Create a new editing job and get upload URLs for source files',
@@ -184,7 +191,14 @@ export class Wizcut implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['job'],
-						operation: ['approve', 'getJob', 'setSpeakerMapping', 'startProcessing', 'startRender'],
+						operation: [
+							'approve',
+							'askEditor',
+							'getJob',
+							'setSpeakerMapping',
+							'startProcessing',
+							'startRender',
+						],
 					},
 				},
 				description: 'The job ID returned from Create Job',
@@ -199,6 +213,29 @@ export class Wizcut implements INodeType {
 				displayOptions: { show: { resource: ['job'], operation: ['startProcessing'] } },
 				description:
 					'Comma-separated source IDs to use for speaker detection. Defaults to the first source.',
+			},
+
+			// --- Ask Editor fields ---
+			{
+				displayName: 'Message',
+				name: 'message',
+				type: 'string',
+				typeOptions: { rows: 3 },
+				default: '',
+				required: true,
+				placeholder: 'e.g. Make the intro calmer and stay wide during the laugh at 12:40',
+				displayOptions: { show: { resource: ['job'], operation: ['askEditor'] } },
+				description:
+					'What should change, in plain language (up to 2,000 characters). Tally, WizCut’s AI editing agent, changes the edit and answers with what it did. Works while the job is "ready" or "complete"; it doesn’t render, use Start Render for a new video. In beta: only for accounts it’s switched on for, and limited to a number of requests per day.',
+			},
+			{
+				displayName: 'Session ID',
+				name: 'sessionId',
+				type: 'string',
+				default: '',
+				displayOptions: { show: { resource: ['job'], operation: ['askEditor'] } },
+				description:
+					'To continue a conversation, the sessionId from an earlier Ask Editor answer. Leave empty to start a new one.',
 			},
 
 			// --- Set Speaker Mapping fields ---
@@ -303,6 +340,27 @@ export class Wizcut implements INodeType {
 							url: `${baseUrl}/api/jobs/${jobId}/tracks`,
 							body: { tracks },
 							json: true,
+						},
+					);
+					returnData.push({ json: response as INodeExecutionData['json'], pairedItem: { item: i } });
+				}
+
+				if (operation === 'askEditor') {
+					const jobId = this.getNodeParameter('jobId', i) as string;
+					const message = this.getNodeParameter('message', i) as string;
+					const sessionId = this.getNodeParameter('sessionId', i, '') as string;
+					const body: Record<string, unknown> = { message };
+					if (sessionId) body.sessionId = sessionId;
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'wizcutApi',
+						{
+							method: 'POST',
+							url: `${baseUrl}/api/jobs/${jobId}/ask`,
+							body,
+							json: true,
+							// One request is a whole turn with the agent: up to about a minute.
+							timeout: 90_000,
 						},
 					);
 					returnData.push({ json: response as INodeExecutionData['json'], pairedItem: { item: i } });
