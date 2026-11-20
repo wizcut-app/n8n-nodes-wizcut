@@ -24,7 +24,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          # Not lts/*: Node 26 became LTS in 2026-10 and isolated-vm (from
+          # n8n-workflow) doesn't build on it (publish of 0.3.0, 2026-11-20).
+          node-version: '24'
           cache: 'npm'
 
       # OIDC trusted publishing requires npm >= 11.5.1. Pinned to the 11.x
