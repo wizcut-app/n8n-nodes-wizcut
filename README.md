@@ -20,6 +20,7 @@ WizCut automatically syncs, detects speakers, and cuts multicam podcast recordin
 | **Start Processing** | Kick off audio sync and speaker detection. |
 | **Start Render** | Render the final video once cuts are ready. |
 | **Approve** | Mark a rendered video as approved. |
+| **Ask Editor** | Ask Tally, WizCut’s AI editing agent, to change the edit in plain language (“make the intro calmer”). Returns its reply, the changes and a `sessionId` to continue the conversation. Beta: only for accounts it’s switched on for, and limited per day. |
 
 ### WizCut Trigger
 
