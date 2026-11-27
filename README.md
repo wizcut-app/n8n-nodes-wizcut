@@ -20,7 +20,7 @@ WizCut automatically syncs, detects speakers, and cuts multicam podcast recordin
 | **Start Processing** | Kick off audio sync and speaker detection. |
 | **Start Render** | Render the final video once cuts are ready. |
 | **Approve** | Mark a rendered video as approved. |
-| **Ask Editor** | Ask Tally, WizCut’s AI editing agent, to change the edit in plain language (“make the intro calmer”). Returns its reply, the changes and a `sessionId` to continue the conversation. Beta: only for accounts it’s switched on for, and limited per day. |
+| **Ask Editor** | Ask Tally, WizCut’s AI editing assistant, to change the edit in plain language (“make the intro calmer”). Returns its reply, the changes and a `sessionId` to continue the conversation. Every change can be undone; limited to 100 requests a day per person. |
 
 ### WizCut Trigger
 
@@ -33,6 +33,8 @@ Webhook-based trigger that starts your workflow when a job changes status:
 | **Render Complete** | Video rendering finished. |
 | **Approved** | Rendered video approved for download. |
 
+Transcripts (TXT, SRT, VTT), chapters and show notes, and burned-in captions are also in the WizCut API (`/api/jobs/{jobId}/transcript`, `/api/jobs/{jobId}/details`, `/api/jobs/{jobId}/captions`). Until the node gets dedicated operations for them, you can reach them from n8n with an **HTTP Request** node and the same WizCut API key — see the [WizCut API docs](https://wizcut.com/docs/api).
+
 ## Typical workflow
 
 1. Files land in Google Drive / Dropbox / S3
@@ -40,9 +42,10 @@ Webhook-based trigger that starts your workflow when a job changes status:
 3. **HTTP Request** — upload files to the presigned URLs
 4. **WizCut: Start Processing** — kicks off sync + speaker detection, then matches speakers to cameras
 5. Only if WizCut isn’t sure who is on which camera: **WizCut Trigger** receives a `mapping` webhook — send a Slack/email with the review link, and confirm the cameras in the WizCut editor (takes ~30 seconds)
-6. **WizCut Trigger** receives `ready` webhook — trigger render (or review cuts first)
-7. **WizCut: Start Render** — render the final video
-8. **WizCut Trigger** receives `complete` webhook — download, upload to YouTube, notify team
+6. **WizCut Trigger** receives `ready` webhook — cuts are ready for review or render
+7. *(Optional)* **WizCut: Ask Editor** — ask Tally for a change (e.g. tighten long pauses) before rendering
+8. **WizCut: Start Render** — render the final video
+9. **WizCut Trigger** receives `complete` webhook — download (and optionally fetch the SRT with **HTTP Request**), upload to YouTube, notify team
 
 ### When WizCut asks you to confirm speakers
 
